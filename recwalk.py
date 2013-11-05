@@ -2,7 +2,8 @@
 # filter out unwanted subdirectories in a natural manner
 import os
 # Do not use trailing slashes for subdirectories!
-TOP_DIR = os.path.expanduser('~/Tmp/topdir')
+#TOP_DIR = os.path.expanduser('~/Tmp/topdir')
+TOP_DIR = os.path.expanduser('/usr/bin')
 EXCL_LIST = ['s01/q01/r01', 's02', 's03', 's04', 's06']
 for i in xrange(len(EXCL_LIST)):
     EXCL_LIST[i] = TOP_DIR + '/' + EXCL_LIST[i]
@@ -32,6 +33,8 @@ def recwalk(pardir, excl_list, ident):
         path = pardir + '/' + sub
         if os.path.isdir(path):
             # Need to copy the exclusion list since it is passed by reference
+            if os.path.islink(path):
+                continue
             recwalk(path, excl_list[:], ident+'    ')
         elif os.path.isfile(path):
             print path
