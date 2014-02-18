@@ -1,0 +1,12 @@
+Node01:This is crazy!
+.Node01.01:I don't think it works.
+Node02:Whatever you say.
+.Node02.01:I am not sure anymore.
+Node03:Will be valuable
+Node04:Haha
+.Node04.01:Can't think
+..Node04.01.01:You are
+..Node04.01.02:I am
+...Node04.01.02.01:Another nonsense.
+...Node04.01.02.02:More stuff...
+Node05:We don't know
