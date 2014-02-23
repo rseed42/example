@@ -16,8 +16,10 @@ WND_FLAGS = sdl.SDL_WINDOW_OPENGL | sdl.SDL_WINDOW_SHOWN
 #-------------------------------------------------------------------------------
 # Check if 330 is supported on this machine
 VERTEX_SHADER = """#version 130
+uniform mat4 mat_ModelView;
+in vec4 Vertex;
 void main(){
-  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    gl_Position = mat_ModelView * Vertex;
 }
 """
 FRAGMENT_SHADER = """#version 130
@@ -38,14 +40,16 @@ class Game(object):
             [ 2,-1, 0 ], [ 4,-1, 0 ], [ 4, 1, 0 ], [ 2,-1, 0 ], [ 4, 1, 0 ],
             [ 2, 1, 0 ]
         ],'f')
+        # Transformation matrices, etc. that are passed to shaders
+        self.uniforms = {}
+        self.mat_model = np.identity(4, 'f')
+        # Move model up a little
+        self.mat_model[1,3] = 0.1
 
     def init_gl(self):
         gl.glClearColor(0,0,0,0)
         gl.glClearDepth(1.0)
         gl.glViewport(0,0,WND_SIZE[0], WND_SIZE[1])
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glEnable(gl.GL_TEXTURE_2D)
-        gl.glLoadIdentity()
         # Compile and link shaders
         vertex_shader = shaders.compileShader(VERTEX_SHADER,
                                               gl.GL_VERTEX_SHADER)
@@ -54,6 +58,12 @@ class Game(object):
         self.shader = shaders.compileProgram(vertex_shader, fragment_shader)
         # Send data to server
         self.vbo1 = vbo.VBO(self.vertices)
+        # Pass the transformation matrix
+        self.uniforms['mat_ModelView'] =  gl.glGetUniformLocation(self.shader,
+                                                                'mat_ModelView')
+        self.uniforms['mat_Test'] = gl.glGetUniformLocation(self.shader,
+                                                            'mat_Test')
+        print self.uniforms
 
     def initialize(self):
         """ Direct translation of the C++ code
@@ -87,9 +97,11 @@ class Game(object):
 
     def render(self):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        gl.glLoadIdentity()
         # Draw stuff here
         shaders.glUseProgram(self.shader)
+        # (location, count, transpose, value)
+        gl.glUniformMatrix4fv(self.uniforms['mat_ModelView'], 1, True,
+                              self.mat_model)
         try:
             self.vbo1.bind()
             try:
