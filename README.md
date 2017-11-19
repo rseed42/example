@@ -1,4 +1,3 @@
-fragments
-=========
+# Examples
 
-Code fragments for anything conceivable so I don't bury them and forget about them
+Repository of small code examples to look up easily.
